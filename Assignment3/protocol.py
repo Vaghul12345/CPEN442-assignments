@@ -92,11 +92,11 @@ class Protocol:
             print("key part 4")
         if peer_s_pub_key and peer_e_pub_key:
             # ECDH key agreement
-            # Multiply your private key with the peer's public key
+            # Private key multipled by public peer key
             shared_secret_static = self.static_priv_key.d * peer_s_pub_key.pointQ
             shared_secret_ephemeral = self.ephemeral_priv_key.d * peer_e_pub_key.pointQ
             print("key part 5")
-            # You can concatenate both shared secrets and hash them to derive the session key
+            # Get shared secret from both keys
             shared_secret = shared_secret_static.x.to_bytes() + shared_secret_ephemeral.x.to_bytes()
             session_key = SHAKE128.new(shared_secret).read(32)
             print("key part 6")
@@ -124,7 +124,6 @@ class Protocol:
             shared_secret = shared_secret_static.x.to_bytes() + shared_secret_ephemeral.x.to_bytes()
             session_key = SHAKE128.new(shared_secret).read(32)
             
-            # Set the session key
             self.SetSessionKey(session_key)
         else:
             print("Error: Missing keys in the protocol message.")
@@ -168,7 +167,7 @@ class Protocol:
     # Encrypting messages
     # TODO: IMPLEMENT ENCRYPTION WITH THE SESSION KEY (ALSO INCLUDE ANY NECESSARY INFO IN THE ENCRYPTED MESSAGE FOR INTEGRITY PROTECTION)
     # RETURN AN ERROR MESSAGE IF INTEGRITY VERITIFCATION OR AUTHENTICATION FAILS
-    # Here, have it where it has the Client or the Server name iwthin the message to prevent reply attacks
+
     def EncryptAndProtectMessage(self, plain_text):
         print("encrypting and protecting the message")
         # cipher_text = plain_text
@@ -191,7 +190,7 @@ class Protocol:
         # return plain_text.encode('utf-8')
 
     def CreateResponseMessage(self, extracted_nonce):
-    # Create a new challenge and define the sender identity
+
         new_challenge = get_random_bytes(16)
         sender_id = "Reciever" 
 
@@ -226,11 +225,11 @@ class Protocol:
         print("we're decrypting now 5")
 
         try:
-            # The decrypt_and_verify function will raise an exception if the verification fails
+
             plain_text = cipher.decrypt_and_verify(encrypted, tag)
             return plain_text.decode('utf-8')
         except ValueError as e:
-            # Handle the error 
+ 
             print(f"Error in decrypting and verifying message: {e}")
             raise
         # plain_text = cipher_text
